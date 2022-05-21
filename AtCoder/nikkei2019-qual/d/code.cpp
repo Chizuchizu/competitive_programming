@@ -24,47 +24,9 @@ bool chmin(T &a, const T& b) {
     return false;
 }
 
-
-vector<int> topological_sort(
-            vector<vector<int>> &G,
-            vector<int> &indegree,
-            int V
-        ) {
-    vector<int> sorted_vertices;
-
-    // 次数が0の頂点をqueに追加
-    queue<int> que;
-    for (int i = 0; i < V; i++){
-        if (indegree[i] == 0) {
-            que.push(i);
-        } 
-    }
-
-
-    while (!que.empty()) {
-        int v;
-
-        v = que.front();
-        que.pop();
-
-        sorted_vertices.push_back(v);
-
-        for (int i = 0; i < G[v].size(); i++){
-            int u = G[v][i];
-            indegree[u] -= 1;
-
-            if (indegree[u] == 0) {
-                que.push(u);
-            } 
-        }
-
-    }
-
-    return sorted_vertices;
-}
-
 int N, M;
-int DP[3010][3010];
+int dep[1001010];
+int ans[1001010];    
 vector<bool> visited;
 
 
@@ -76,7 +38,7 @@ int main(){
 
     visited.resize(N);
 
-    for (int i = 1; i < N + M; i++){
+    for (int i = 0; i < N + M - 1; i++){
         int a, b;
         cin >> a >> b;
         a--;
@@ -86,37 +48,67 @@ int main(){
         indegree[b] += 1;
     }
 
-    
-    vector<int> sorted_vertices = topological_sort(
-                G,
-                indegree,
-                N
-            );
-    
-    /*
-    cout << sorted_vertices.size() << endl;
 
-    for (int i= 0; i<N;i++){
-        cout << sorted_vertices[i] + 1 << " ";
-    }
-    */
+    stack<int> que;
+    vector<int> sorted;
+    vector<int> parent(N, -1);
+
+    int root = 0;
     
-    for (int i= 0; i<N;i++){
-        int idx=-1, u=-1;
-        for (int j = 0; j < N; j++){
-            for (int k = 0; k < G[j].size(); k++){
-                if (G[j][k] == i) {
-                    int dx = (int)(find(sorted_vertices.begin(), sorted_vertices.end(), j) - sorted_vertices.begin());
-                    // cout << dx << endl;
-                    if ( sorted_vertices[dx] != j ) continue;
-                    if ( dx > idx ) {
-                        idx = (int)(find(sorted_vertices.begin(), sorted_vertices.end(), j) - sorted_vertices.begin());
-                        u = j;
-                    }
-                }
+    for (int i = 0; i < N; i++){
+        if (indegree[i] == 0) { 
+        que.push(i);
+            root = i;
+        }
+    }
+
+    // que.push(root);
+    while (!que.empty()) {
+        int v = que.top();
+        que.pop();
+
+        sorted.push_back(v);
+        for (int u: G[v]) {
+
+            indegree[u] -= 1;
+
+            if (indegree[u] == 0){
+                que.push(u);
+                // parent[u] = i;
             }
         }
-        cout << u + 1  << endl;
+
     }
 
+    for (int i = 0; i < N; i++){
+        int cu = sorted[i];
+        for (int to: G[cu]) {
+            chmax(
+                    dep[to],
+                    dep[cu] + 1
+                 );
+        }
+    }
+    /*
+    for (int i = 0; i < N; i++){
+        cout << sorted_vertices[i] + 1 << " ";
+    }
+    cout << endl;
+    */
+
+
+    root = sorted[0];
+    ans[root] = -1;
+
+    for (int i = 0; i < N; i++){
+        for (int j = 0; j < (int)G[i].size(); j++){
+            int to = G[i][j];
+            if (dep[i] + 1 == dep[to]) {
+                ans[to] = i;
+            }
+        }
+    }
+    for (int i = 0; i < N; i++){
+        cout << ans[i] + 1 << endl;
+    }
 }
