@@ -58,9 +58,8 @@ void solve() {
         } else if (op == 2){
             cin >> x >> c;
 
-            while (true) {
-                if (c <= 0) break;
-                if (ms.find(x) != ms.end()) {
+            while (c > 0) {
+                if (ms.find(x) == ms.end()) {
                     break;
                 }
 
