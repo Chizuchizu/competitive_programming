@@ -37,8 +37,52 @@ bool chmin(T &a, const T& b) {
 }
 
 
+int N, M, K;
+
+long long CUMSUM1[5011];
+const long long MOD = 998244353;
+long long DP[1010][5010] = {};
+
 
 void solve() {
+    cin >> N >> M >> K;
+    // vector<vector<long long>> DP(N, vector<long long>(M, 0));
+
+    for (int i = 0; i < M; i++){
+        DP[0][i] = 1;
+    }
+
+    for (int i = 0; i < N - 1; i++){
+        CUMSUM1[0] = 0;
+        for (int j = 0; j < M; j++){
+            CUMSUM1[j + 1] = CUMSUM1[j] + DP[i][j];
+            CUMSUM1[j + 1] %= MOD;
+        }
+            
+        for (int j = 0; j < M; j++){
+
+            DP[i + 1][j] = CUMSUM1[M];
+
+            if (K > 0)
+            {
+                DP[i + 1][j] -= CUMSUM1[min(j + K, M)] - CUMSUM1[max(j - K + 1, 0)];
+            }
+
+            DP[i + 1][j] += MOD;
+            DP[i + 1][j] %= MOD;
+        }
+
+    }
+
+    long long ans = 0;
+
+    for (int i = 0; i < M; i++){
+        ans += DP[N - 1][i];
+    }
+    ans %= MOD;
+
+    cout << ans << endl;
+
 
 }
 
